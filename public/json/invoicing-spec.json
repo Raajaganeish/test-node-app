@@ -1,0 +1,332 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Invoices",
+    "version": "2.4",
+    "description": "Use the Invoicing API to create, send, and manage invoices. You can also use the API or webhooks to track invoice payments. When you send an invoice to a customer, the invoice moves from draft to payable state. PayPal then emails the customer a link to the invoice on the PayPal website. Customers with a PayPal account can log in and pay the invoice with PayPal. Alternatively, customers can pay as a guest with a debit card or credit card. For more information, see the [Invoicing Overview](/docs/invoicing/) and the [Invoicing Integration Guide](/docs/invoicing/basic-integration/).",
+    "x-serviceName": "invoiceserv",
+    "x-publicDocsPath": "invoicing"
+  },
+  "servers": [
+    {
+      "url": "https://api-m.paypal.com/v2/invoicing"
+    }
+  ],
+  "paths": {
+    "/invoices": {
+      "post": {
+        "summary": "Create draft invoice",
+        "description": "Creates a draft invoice. To move the invoice from a draft to payable state, you must [send the invoice](#invoices_send).\n\nIn the JSON request body, include invoice details including merchant information. The `invoice` object must include an `items` array.\n\n>Note: The merchant that you specify in an invoice must have a PayPal account in good standing.",
+        "operationId": "invoices.create",
+        "tags": ["invoices"],
+        "security": [
+          {
+            "Oauth2": [
+              "https://uri.paypal.com/services/invoicing/invoices/readwrite"
+            ]
+          }
+        ],
+        "requestBody": {
+          "description": "The invoice details which includes all information of the invoice like items, billing information.",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Invoice"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "A successful request returns the HTTP `201 Created` status code. A JSON response body that shows invoice details is returned if you set `prefer=return=representation`.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Invoice"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Invoice": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "invoice_number": {
+            "type": "string"
+          },
+          "reference": {
+            "type": "string"
+          },
+          "invoice_date": {
+            "type": "string",
+            "format": "date"
+          },
+          "due_date": {
+            "type": "string",
+            "format": "date"
+          },
+          "note": {
+            "type": "string"
+          },
+          "merchant_info": {
+            "$ref": "#/components/schemas/MerchantInfo"
+          },
+          "billing_info": {
+            "$ref": "#/components/schemas/BillingInfo"
+          },
+          "shipping_info": {
+            "$ref": "#/components/schemas/ShippingInfo"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/InvoiceItem"
+            }
+          },
+          "amount": {
+            "$ref": "#/components/schemas/AmountBreakdown"
+          },
+          "tax_inclusive": {
+            "type": "boolean"
+          },
+          "tax_calculated_after_discount": {
+            "type": "boolean"
+          },
+          "payment_term": {
+            "$ref": "#/components/schemas/PaymentTerm"
+          },
+          "metadata": {
+            "$ref": "#/components/schemas/Metadata"
+          },
+          "links": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Link"
+            }
+          },
+          "attachments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Attachment"
+            }
+          }
+        }
+      },
+      "MerchantInfo": {
+        "type": "object",
+        "properties": {
+          "email_address": {
+            "type": "string",
+            "format": "email"
+          },
+          "business_name": {
+            "type": "string"
+          },
+          "address": {
+            "$ref": "#/components/schemas/Address"
+          },
+          "phone": {
+            "type": "string"
+          }
+        }
+      },
+      "Address": {
+        "type": "object",
+        "properties": {
+          "line1": {
+            "type": "string"
+          },
+          "line2": {
+            "type": "string"
+          },
+          "city": {
+            "type": "string"
+          },
+          "state": {
+            "type": "string"
+          },
+          "postal_code": {
+            "type": "string"
+          },
+          "country_code": {
+            "type": "string"
+          }
+        }
+      },
+      "ShippingInfo": {
+        "type": "object",
+        "properties": {
+          "first_name": {
+            "type": "string"
+          },
+          "last_name": {
+            "type": "string"
+          },
+          "business_name": {
+            "type": "string"
+          },
+          "address": {
+            "$ref": "#/components/schemas/Address"
+          }
+        }
+      },
+      "InvoiceItem": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "string"
+          },
+          "unit_price": {
+            "type": "number",
+            "format": "float"
+          },
+          "tax_rate": {
+            "type": "number",
+            "format": "float"
+          },
+          "tax_amount": {
+            "$ref": "#/components/schemas/Amount"
+          },
+          "total_amount": {
+            "$ref": "#/components/schemas/Amount"
+          }
+        }
+      },
+      "Amount": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "number",
+            "format": "float"
+          },
+          "currency": {
+            "type": "string"
+          }
+        }
+      },
+      "AmountBreakdown": {
+        "type": "object",
+        "properties": {
+          "sub_total": {
+            "$ref": "#/components/schemas/Amount"
+          },
+          "discount": {
+            "$ref": "#/components/schemas/Amount"
+          },
+          "shipping": {
+            "$ref": "#/components/schemas/Amount"
+          },
+          "handling": {
+            "$ref": "#/components/schemas/Amount"
+          },
+          "tax": {
+            "$ref": "#/components/schemas/Amount"
+          },
+          "adjustment": {
+            "$ref": "#/components/schemas/Amount"
+          },
+          "total": {
+            "$ref": "#/components/schemas/Amount"
+          }
+        }
+      },
+      "BillingInfo": {
+        "type": "object",
+        "properties": {
+          "first_name": {
+            "type": "string"
+          },
+          "last_name": {
+            "type": "string"
+          },
+          "business_name": {
+            "type": "string"
+          },
+          "address": {
+            "$ref": "#/components/schemas/Address"
+          }
+        }
+      },
+      "PaymentTerm": {
+        "type": "object",
+        "properties": {
+          "term_type": {
+            "type": "string"
+          },
+          "due_date": {
+            "type": "string",
+            "format": "date"
+          }
+        }
+      },
+      "Metadata": {
+        "type": "object",
+        "additionalProperties": {
+          "type": "string"
+        }
+      },
+      "Link": {
+        "type": "object",
+        "properties": {
+          "href": {
+            "type": "string",
+            "format": "uri"
+          },
+          "rel": {
+            "type": "string"
+          }
+        }
+      },
+      "Attachment": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "content_type": {
+            "type": "string"
+          },
+          "size": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "url": {
+            "type": "string",
+            "format": "uri"
+          },
+          "inline": {
+            "type": "boolean"
+          }
+        }
+      }
+    }
+  }
+}

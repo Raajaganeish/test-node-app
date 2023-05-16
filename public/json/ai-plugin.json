@@ -1,0 +1,19 @@
+{
+  "schema_version": "v1",
+  "name_for_human": "Invoicing Plugin",
+  "name_for_model": "invoicing",
+  "description_for_human": "Plugin for creating, sending, and managing invoices. Track invoice payments and handle invoicing tasks.",
+  "description_for_model": "Plugin for creating, sending, and managing invoices. Track invoice payments and handle invoicing tasks.",
+  "auth": {
+    "type": "oauth2",
+    "scopes": ["https://uri.paypal.com/services/invoicing/invoices/readwrite"]
+  },
+  "api": {
+    "type": "openapi",
+    "url": "http://localhost:3000/openapi.json",
+    "is_user_authenticated": true
+  },
+  "logo_url": "http://localhost:3000/logo.png",
+  "contact_email": "support@example.com",
+  "legal_info_url": "http://www.example.com/legal"
+}
